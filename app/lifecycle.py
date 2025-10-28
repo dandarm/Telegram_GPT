@@ -7,7 +7,18 @@ from .commands import boards, recap
 logger = logging.getLogger("bot")
 
 async def run():
-    app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+    # Telegram può mantenere aperta la long-polling per ~30s; se read_timeout è più
+    # basso (default 5s) la libreria solleva TimedOut. Alziamo i timeout HTTP per
+    # evitare l'errore durante il polling.
+    app = (
+        ApplicationBuilder()
+        .token(TELEGRAM_BOT_TOKEN)
+        .connect_timeout(30)
+        .read_timeout(30)
+        .write_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
     # registra comandi/handler
     register_all(app)
     boards.register(app)
@@ -18,7 +29,7 @@ async def run():
         try: await app.bot.send_message(ADMIN_CHAT_ID, "✅ Bot avviato.")
         except Exception as e: logger.warning(f"Notify avvio fallita: {e}")
 
-    await app.updater.start_polling(allowed_updates=None)
+    await app.updater.start_polling(allowed_updates=None, timeout=30)
 
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
