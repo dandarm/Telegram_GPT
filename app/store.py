@@ -15,6 +15,7 @@ class FileStore:
                 "# Stato della conversazione\n\n"
                 "## Fatti confermati\n\n"
                 "## Decisioni\n\n"
+                "## Risposte del bot (in prima persona)\n\n"
                 "## Vincoli\n\n"
                 "## TODO\n\n"
                 "## Punti aperti\n\n",
