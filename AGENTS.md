@@ -59,7 +59,7 @@ Questo file serve a chi mantiene o estende il codice, inclusi strumenti come Cod
   - `recap.py`: implementa `/recap`.
 
 - **app/lifecycle.py**
-  - Gestisce avvio/arresto con notifiche opzionali in `ADMIN_CHAT_ID`.
+  - Gestisce avvio/arresto e invia notifiche alle chat note in `data/`.
   - Avvio manuale di Application (`initialize`, `start`, `start_polling`).
 
 - **main.py**
