@@ -3,4 +3,8 @@ logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", 
 from app.lifecycle import run
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    except RuntimeError as exc:
+        logging.getLogger("main").error(str(exc))
+        raise SystemExit(1)
