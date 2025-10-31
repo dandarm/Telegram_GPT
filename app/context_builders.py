@@ -27,8 +27,10 @@ def update_state_from_exchange(store: FileStore, last_user: str, user_text: str,
     state = store.read_state()
     prompt = (
         "Aggiorna lo STATO in modo minimale e coerente.\n"
-        "Mantieni sezioni: Fatti, Decisioni, Vincoli, TODO, Punti aperti.\n"
-        "Integra SOLO nuovi elementi/turni recenti. Evita ridondanza.\n\n"
+        "Mantieni e rispetta le sezioni: Fatti confermati, Decisioni, Risposte del bot (in prima persona), Vincoli, TODO, Punti aperti.\n"
+        "Non rimuovere né riassumere al ribasso informazioni già presenti: aggiungi solo nuovi elementi oppure annota che qualcosa è superato, lasciando il testo esistente.\n"
+        "Integra SOLO ciò che proviene dal nuovo scambio, evitando ridondanza inutile.\n"
+        "Nella sezione 'Risposte del bot (in prima persona)' aggiungi un nuovo punto sintetico in prima persona che riassuma la risposta appena fornita.\n\n"
         f"=== STATO ATTUALE ===\n{state}\n\n"
         "=== ULTIMO SCAMBIO ===\n"
         f"UTENTE ({last_user}): {user_text}\nBOT: {bot_text}\n\n=== NUOVO STATO ==="
