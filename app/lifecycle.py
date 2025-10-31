@@ -7,6 +7,13 @@ from .commands import boards, recap
 logger = logging.getLogger("bot")
 
 async def run():
+
+    if not TELEGRAM_BOT_TOKEN:
+        raise RuntimeError(
+            "Missing TELEGRAM_BOT_TOKEN environment variable. "
+            "Define it in your environment or .env file."
+        )
+
     # Telegram può mantenere aperta la long-polling per ~30s; se read_timeout è più
     # basso (default 5s) la libreria solleva TimedOut. Alziamo i timeout HTTP per
     # evitare l'errore durante il polling.
@@ -19,6 +26,7 @@ async def run():
         .pool_timeout(30)
         .build()
     )
+
     # registra comandi/handler
     register_all(app)
     boards.register(app)
