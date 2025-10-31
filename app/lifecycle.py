@@ -7,6 +7,12 @@ from .commands import boards, recap
 logger = logging.getLogger("bot")
 
 async def run():
+    if not TELEGRAM_BOT_TOKEN:
+        raise RuntimeError(
+            "Missing TELEGRAM_BOT_TOKEN environment variable. "
+            "Define it in your environment or .env file."
+        )
+
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
     # registra comandi/handler
     register_all(app)
