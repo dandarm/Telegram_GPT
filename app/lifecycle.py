@@ -1,8 +1,10 @@
 import asyncio, signal, logging
+from contextlib import suppress
 from telegram.ext import ApplicationBuilder
 from .config import TELEGRAM_BOT_TOKEN, DATA_DIR
 from .handlers import register_all
 from .commands import boards, recap
+from .daily_summary import start_daily_summary_task
 
 logger = logging.getLogger("bot")
 
@@ -19,6 +21,12 @@ def known_chat_ids():
             logger.debug(f"Ignoro directory non numerica in DATA_DIR: {entry}")
     return ids
 
+CHUNK_SIZE = 3500
+
+def _chunk_text(text: str, size: int = CHUNK_SIZE):
+    for i in range(0, len(text), size):
+        yield text[i : i + size]
+
 async def notify_all_chats(bot, text: str):
     chat_ids = known_chat_ids()
     if not chat_ids:
@@ -26,9 +34,16 @@ async def notify_all_chats(bot, text: str):
         return
     for chat_id in chat_ids:
         try:
-            await bot.send_message(chat_id, text)
+            if len(text) <= CHUNK_SIZE:
+                await bot.send_message(chat_id, text)
+            else:
+                for idx, chunk in enumerate(_chunk_text(text), start=1):
+                    await bot.send_message(chat_id, chunk)
+                    logger.debug(
+                        "Inviato chunk %d per chat %s (%d chars).", idx, chat_id, len(chunk)
+                    )
         except Exception as e:
-            logger.warning(f"Notify '{text}' fallita per chat {chat_id}: {e}")
+            logger.warning(f"Notify '{text[:100]}...' fallita per chat {chat_id}: {e}")
 
 async def run():
 
@@ -59,6 +74,8 @@ async def run():
     await app.initialize(); await app.start()
     await notify_all_chats(app.bot, "✅ Bot avviato.")
 
+    summary_task = start_daily_summary_task(app.bot, notify_all_chats)
+
     await app.updater.start_polling(allowed_updates=None, timeout=30)
 
     stop = asyncio.Event()
@@ -69,5 +86,10 @@ async def run():
     await stop.wait()
 
     await notify_all_chats(app.bot, "🛑 Bot in arresto...")
+
+    if summary_task:
+        summary_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await summary_task
 
     await app.updater.stop(); await app.stop(); await app.shutdown()

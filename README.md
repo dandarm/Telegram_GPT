@@ -72,3 +72,18 @@ Ogni messaggio viene loggato su file in ./data/.
 Per aggiungere nuove funzioni: crea un file in app/commands/ e registra l’handler nel lifecycle.py.
 
 Per modificare la memoria: agisci su store.py o su context_builders.py.
+
+## 🗓 Riassunto giornaliero automatico
+
+Il bot può generare automaticamente un *riassunto del giorno* chiedendo a Codex di analizzare l’intera knowledge base (cartella `data/`) e inoltrare l’output in tutte le chat note. Attiva la funzione con le variabili d’ambiente:
+
+- `DAILY_SUMMARY_ENABLED=1` abilita il job (default disabilitato).
+- `DAILY_SUMMARY_TIME=HH:MM` imposta l’orario locale (default `00:00`).
+- `DAILY_SUMMARY_REPO` indica la root del progetto da cui lanciare `codex exec` (default: repo corrente).
+- `DAILY_SUMMARY_OUTPUT_FILE` file in cui Codex scrive l’ultimo messaggio (default `data/daily_summary_last.txt`).
+- `DAILY_SUMMARY_PROMPT` consente di personalizzare il prompt passato a Codex.
+- `DAILY_SUMMARY_MAX_WORDS` limita il numero massimo di parole nel riassunto (default `400`).
+- `DAILY_SUMMARY_LOOKBACK_HOURS` definisce quante ore di transcript considerare (default `24`).
+- `DAILY_SUMMARY_SCOPE_DIR` directory dove vengono generati gli estratti temporanei (default `data/_daily_summary_scope`).
+
+Prima di chiamare Codex il bot crea automaticamente `DAILY_SUMMARY_SCOPE_DIR`, copiando gli `state.md` e solo i messaggi delle ultime `DAILY_SUMMARY_LOOKBACK_HOURS` ore (per ridurre il carico). La procedura esegue `codex exec ... --output-last-message <file> -- "<prompt>"`, legge il file generato e manda il contenuto (preceduto da “📝 Riassunto del giorno”) in tutte le chat registrate. Ad ogni esecuzione viene creato anche un file con suffisso `_YYYYMMDD` accanto al percorso configurato per conservare lo storico. Assicurati che la CLI `codex` sia installata e raggiungibile nel `PATH`.

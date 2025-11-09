@@ -22,7 +22,7 @@ SYSTEM_PROMPT = (
 )
 
 
-def chat_with_llm(user_text: str, model: str = "gpt-5-mini", temperature: float = 1.0, max_tokens: int | None = None) -> str:
+def chat_with_llm(user_text: str, model: str = "gpt-5", temperature: float = 1.0, max_tokens: int | None = None) -> str:
     client = _get_client()
     kwargs = {
         "model": model,

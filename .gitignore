@@ -211,3 +211,5 @@ data/*
 state.md
 transcript.ndjson
 data/-4918003608/transcript.ndjson
+
+.vscode
